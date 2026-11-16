@@ -1,0 +1,1 @@
+import type { CapacitorConfig } from '@capacitor/cli'; const config: CapacitorConfig = { appId: 'in.driverincometracker.app', appName: 'Driver Income Tracker', webDir: 'dist', server: { androidScheme: 'https' }, plugins: { SplashScreen: { launchShowDuration: 1200, backgroundColor: '#006b4f' }, StatusBar: { backgroundColor: '#00563f', style: 'LIGHT' } } }; export default config;
