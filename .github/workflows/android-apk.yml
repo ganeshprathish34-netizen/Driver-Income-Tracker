@@ -31,13 +31,6 @@ jobs:
       - name: Install Android SDK platform and build tools
         run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
-      - name: Verify application source files
-        run: |
-          test -f src/main.tsx
-          test -f src/App.tsx
-          test -f src/styles.css
-          echo "Application source files found."
-
       - name: Install dependencies
         run: npm install
 
@@ -50,9 +43,33 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Build debug APK
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      - name: Build debug APK (retry temporary Maven rate limits)
         working-directory: android
-        run: ./gradlew --no-daemon assembleDebug
+        shell: bash
+        run: |
+          for attempt in 1 2 3 4; do
+            echo "Gradle build attempt $attempt of 4"
+            if ./gradlew --no-daemon assembleDebug; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 4 ]; then
+              wait_seconds=$((attempt * 45))
+              echo "Build failed. Waiting ${wait_seconds}s before retrying..."
+              sleep "$wait_seconds"
+            fi
+          done
+          echo "Gradle build failed after 4 attempts."
+          exit 1
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
