@@ -1,1 +1,4 @@
-{"files":["src"],"references":[{"path":"./tsconfig.app.json"}]}
+{
+  "files": [],
+  "references": []
+}
