@@ -1,6 +1,5 @@
 {
-  "compilerOptions": {
-    ...
+  "compilerOptions": 
   },
   "include": ["src"]
 }
